@@ -1,50 +1,103 @@
-import CrossIcon from './components/icons/CrossIcon';
-import ThemeIcon from './components/icons/ThemeIcon';
+import { useEffect, useState } from "react";
+import { DragDropContext } from "@hello-pangea/dnd";
+import Filters from "./components/Filters";
+import Header from "./components/Header";
+import Tasks from "./components/Tasks";
+import Actions from "./components/Actions";
+
+let defaultUserTheme = "light";
+if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+    defaultUserTheme = "dark";
+
+const initialTheme = localStorage.getItem("mode") || defaultUserTheme;
+const initalState = JSON.parse(localStorage.getItem("tasks")) || [];
+
+const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+
+    return result;
+};
 
 const App = () => {
+    const [tasks, setTasks] = useState(initalState);
+    const [itemsToLeft, setItemsToLeft] = useState(0);
+    const [filter, setFilter] = useState("all");
+    const [theme, setTheme] = useState(initialTheme);
+
+    useEffect(() => {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+
+        let itl = 0;
+        tasks.map((task) => {
+            if (!task.completed) itl++;
+        });
+        setItemsToLeft(itl);
+    }, [tasks]);
+
+    useEffect(() => {
+        localStorage.setItem("mode", theme);
+    }, [theme]);
+
+    const addTask = (task) => setTasks([...tasks, task]);
+
+    const deleteTask = (taskToDelete) => {
+        const newTasks = tasks.filter((task) => task !== taskToDelete);
+        setTasks(newTasks);
+    };
+
+    const toggletask = (taskToToggle) => {
+        let newTasks = tasks.map((task) =>
+            taskToToggle !== task
+                ? task
+                : { ...task, completed: !task.completed }
+        );
+        setTasks(newTasks);
+    };
+
+    const clearCompleted = () => {
+        let newTasks = tasks.filter((task) => !task.completed);
+        setTasks(newTasks);
+    };
+
+    const onDragEnd = (result) => {
+        if (!result.destination) {
+            return;
+        }
+
+        const items = reorder(
+            tasks,
+            result.source.index,
+            result.destination.index
+        );
+
+        setTasks(items);
+    };
+
     return (
-        <>
-            <div className="bg-[url(./assets/images/bg-desktop-light.jpg)] bg-fixed bg-contain bg-no-repeat bg-gray-200 min-h-screen">
-                
-                <header className="container mx-auto pt-8">
-                    <div className="flex justify-between text-white mb-5">
-                        <h1 className="uppercase tracking-[0.5em] text-2xl">Todo</h1>
-                        <button><ThemeIcon className='fill-white' /></button>
-                    </div>
-                    <form className="bg-white rounded-md overflow-hidden py-2 px-3 flex gap-2 items-center mt-8">
-                        <span className="rounded-full border border-gray-400 w-3 h-3 inline-block"></span>
-                        <input
-                            type="text"
-                            placeholder="Create a new todo..."
-                            className=" w-full text-gray-500 outline-none"
-                        />
-                    </form>
-                </header>
+        <div className={` ${theme}`}>
+            <div className="min-h-screen bg-gray-200 bg-[url(./assets/images/bg-mobile-light.jpg)] bg-contain bg-fixed bg-no-repeat transition-all duration-300 dark:bg-gray-900 dark:bg-[url(./assets/images/bg-mobile-dark.jpg)] md:bg-[url(./assets/images/bg-desktop-light.jpg)] dark:md:bg-[url(./assets/images/bg-desktop-dark.jpg)]">
+                <Header addTask={addTask} theme={theme} setTheme={setTheme} />
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <Tasks
+                        tasks={tasks}
+                        deleteTask={deleteTask}
+                        itemsToLeft={itemsToLeft}
+                        toggletask={toggletask}
+                        clearCompleted={clearCompleted}
+                        filter={filter}
+                    />
+                </DragDropContext>
+                <Actions
+                    clearCompleted={clearCompleted}
+                    itemsToLeft={itemsToLeft}
+                ></Actions>
 
-                <main className="container mx-auto mt-8 bg-white rounded-md">
-
-                    <article className="px-3 flex gap-2 items-center border-b py-3">
-                        <button className="rounded-full border border-gray-400 w-3 h-3 inline-block flex-none"></button>
-                        <span className="text-gray-500 grow">Lorem ipsum dolor sit amet</span>
-                        <button className="flex-none"><CrossIcon /></button>
-                    </article>
-                    
-
-                    <section className="py-3 px-3 text-gray-500 flex justify-between">
-                        <span>5 items left</span>
-                        <button className="capitalize">clear completed</button>
-                    </section>
-                </main>
-
-                <section className="container mx-auto px-4 bg-white mt-8 py-3 rounded-md flex justify-center gap-5 text-gray-500 font-semibold">
-                    <button className=' text-blue-600'>All</button>
-                    <button>Active</button>
-                    <button>Completed</button>
-                </section>
-
+                <Filters filter={filter} setFilter={setFilter} />
                 {/* drag and drop pending */}
             </div>
-        </>
+        </div>
     );
 };
 
