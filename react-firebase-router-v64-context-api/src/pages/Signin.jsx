@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useUserContext } from "../context/UserContext";
+import { signInWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { registerFirebase } from "../config/firebase";
+import { registerFirebase, auth, googleProvider } from "../config/firebase";
 import useRedirectActiveUser from "../hooks/useRedirectActiveUser";
 
 const Signin = () => {
@@ -35,6 +35,15 @@ const Signin = () => {
 			setError(error.message);
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const signInWithGoogle = async () => {
+		try {
+			const result = await signInWithPopup(auth, googleProvider);
+			console.log(result); //TODO handle the register with result.email, resutl.displayName, etc.
+		} catch (err) {
+			console.error(err);
 		}
 	};
 
@@ -82,9 +91,17 @@ const Signin = () => {
 			{error && <p className="text-red-500 text-sm mb-6">{error}</p>}
 			<button
 				type="submit"
-				className="rounded-full bg-blue-400 text-white w-full py-1 text-sm drop-shadow-lg"
+				className="rounded-full bg-blue-400 text-white w-full py-1 text-sm drop-shadow-lg mb-4"
 			>
 				Sign in
+			</button>
+			<button
+				onClick={signInWithGoogle}
+				type="button"
+				className="rounded-full bg-yellow-400 w-full py-1 text-sm drop-shadow-lg text-zinc-700"
+			>
+				{" "}
+				Signin with google
 			</button>
 		</form>
 	);
