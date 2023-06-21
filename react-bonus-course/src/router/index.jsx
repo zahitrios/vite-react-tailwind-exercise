@@ -8,6 +8,7 @@ import Team from "../pages/Team";
 import Projects from "../pages/Projects";
 import Protected from "../pages/Protected";
 import RequireAuth from "../components/RequireAuth";
+import GoLongUrl from "../pages/GoLongUrl";
 
 const router = createBrowserRouter([
 	{
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
 						element: <Projects />,
 					},
 					{
+						path: "/notFound",
+						element: <Notfound />,
+					},
+					{
 						path: "/protected",
 						element: (
 							<RequireAuth>
@@ -49,6 +54,14 @@ const router = createBrowserRouter([
 				],
 			},
 		],
+	},
+	{
+		path: "/:id",
+		element: (
+			<RequireAuth>
+				<GoLongUrl />
+			</RequireAuth>
+		),
 	},
 ]);
 

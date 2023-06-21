@@ -10,7 +10,8 @@ import { auth, googleProvider } from "../config/firebase";
 export const UserContext = createContext();
 
 const UserProvider = props => {
-	const [user, setUser] = useState([]);
+	const [user, setUser] = useState(false);
+	const [validatingUser, setValidatingUser] = useState(true);
 
 	const registerWithGoogle = () => signInWithPopup(auth, googleProvider);
 
@@ -24,6 +25,7 @@ const UserProvider = props => {
 		const unSubscribe = onAuthStateChanged(auth, user => {
 			if (user) setUser(user);
 			else setUser(false);
+			setValidatingUser(false);
 		});
 	}, []);
 
@@ -35,6 +37,7 @@ const UserProvider = props => {
 				registerWithGoogle,
 				registerWithEmail,
 				logInWithEmail,
+				validatingUser,
 			}}
 		>
 			{props.children}

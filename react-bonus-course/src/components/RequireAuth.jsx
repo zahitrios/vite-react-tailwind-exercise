@@ -3,7 +3,11 @@ import { UserContext } from "../context/UserProvider";
 import { Navigate } from "react-router-dom";
 
 const RequireAuth = ({ children }) => {
-	const { user } = useContext(UserContext);
+	const { user, validatingUser } = useContext(UserContext);
+
+	if (validatingUser) {
+		return <div />;
+	}
 
 	if (!user) {
 		//user is not logged
