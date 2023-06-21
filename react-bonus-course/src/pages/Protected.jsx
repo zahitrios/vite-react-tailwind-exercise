@@ -62,7 +62,6 @@ const Protected = () => {
 									type="text"
 									name="url"
 									onChange={handleChange}
-									onBlur={handleBlur}
 									value={values.url}
 									placeholder="http://yahoo.com.mx"
 									className="rounded-lg outline-none mt-4"

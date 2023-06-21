@@ -57,11 +57,7 @@ const router = createBrowserRouter([
 	},
 	{
 		path: "/:id",
-		element: (
-			<RequireAuth>
-				<GoLongUrl />
-			</RequireAuth>
-		),
+		element: <GoLongUrl />,
 	},
 ]);
 
