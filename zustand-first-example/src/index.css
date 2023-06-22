@@ -1,0 +1,9 @@
+body {
+  background-color: #202020;
+  color: #ffffff;
+}
+
+.half{
+  width:50%;
+  float:left;
+}
